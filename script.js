@@ -1,37 +1,49 @@
 (function() {
-    var parentNodeElement = document.querySelector('.expand-collapse');
-    parentNodeElement.style = 'position: relative;transition: all 0.4s;box-sizing: border-box;';
+    var parentNodeElement = document.querySelector('.expand-collapse-text');
+    parentNodeElement.style = 'position: relative;transition: all 0.5s;box-sizing: border-box;';
 
     var allChildElement = parentNodeElement.children;
 
     for (var i = 1; i < allChildElement.length; ++i) {
-        allChildElement[i].style = 'opacity: 0;pointer-events: none;';
+        allChildElement[i].style = 'opacity: 0; pointer-events: none;';
     }
 
-    var childNode = parentNodeElement.firstElementChild;
-    childNode.style.opacity = '1';
-    var childNodesHeight = childNode.getBoundingClientRect().height;
+    var firstChildNode = parentNodeElement.firstElementChild;
+    firstChildNode.style.opacity = '1';
+    var childNodesHeight = firstChildNode.getBoundingClientRect().height;
 
     parentNodeElement.style.height = childNodesHeight +'px';
 
-    var readMoreButton = document.createElement('span');
-    readMoreButton.textContent = 'Открыть скрытое...';
-    readMoreButton.style = 'font-size: 16px; cursor: pointer;margin-top:20px;';
+    var readMoreButton = document.createElement('div');
+    readMoreButton.classList.add('read__more-button');
+    readMoreButton.classList.add('expand');
+    readMoreButton.innerHTML = '<span>Читать далее...</span>';
+    readMoreButton.style = 'font-size: 16px; cursor: pointer;margin:20px 0;';
     readMoreButton.style.display = 'block';
     parentNodeElement.insertAdjacentElement('afterend',readMoreButton);
 
-    var readCollapseButton = document.createElement('span');
-    readCollapseButton.textContent = 'Скрыть открытое...';
-    readCollapseButton.style = 'font-size: 16px; cursor: pointer;';
-    readCollapseButton.style.display = 'none';
-    parentNodeElement.insertAdjacentElement('afterend',readCollapseButton);
+    readMoreButton.addEventListener('click', function () {
+       if (readMoreButton.classList.contains('expand')){
+           readMoreButton.classList.remove('expand');
+           readMoreButton.classList.add('collapse');
+           readMoreButton.innerHTML = '<span>Скрыть текст</span>';
+
+           calculateHeightExpand();
+       } else if (readMoreButton.classList.contains('collapse')) {
+           readMoreButton.classList.remove('collapse');
+           readMoreButton.classList.add('expand');
+           readMoreButton.innerHTML = '<span>Читать далее...</span>';
+
+           calculateHeightCollapse();
+       }
+    });
 
     var calculateHeightExpand = function () {
         var childNodeHeightArray = [];
 
         for (var i = 0; i < allChildElement.length; i++) {
             allChildElement[i].style.opacity = '1';
-            allChildElement[i].style.pointerEvents = 'none';
+            allChildElement[i].style.pointerEvents = null;
 
             allChildElement[i].style.transition = '0.' + i + 's';
             allChildElement[i].style.transitionDelay = '0.' + i + 's';
@@ -50,28 +62,17 @@
 
             parentNodeElement.style.height = totalAllElementHeight+ 'px';
         }
-
-        readCollapseButton.style.display = 'block';
-        readMoreButton.style.display = 'none';
-
-        readCollapseButton.style.bottom = '0';
     };
 
     var calculateHeightCollapse = function () {
-        readMoreButton.style.display = 'block';
-        readCollapseButton.style.display = 'none';
 
-        childNode.style.opacity = '1';
         parentNodeElement.style.height = childNodesHeight +'px';
 
-        for (var i = 1; i < allChildElement.length; ++i) {
-            allChildElement[i].style = 'opacity: 0;pointer-events: none;';
+        for (var i = 0; i < allChildElement.length; i++) {
+            let countArray = allChildElement.length - i;
 
-            // allChildElement[i].style.transition = '0.' + i + 's';
-            // allChildElement[i].style.transitionDelay = '0.' + i + 's';
+            firstChildNode.style.opacity = '1';
+            allChildElement[i].style = 'opacity: 0; transition:' + 0.03 * countArray + i + 's; transition-delay:' + 0.03 *  countArray + i + 's;pointer-events: none;';
         }
     };
-
-    readMoreButton.addEventListener('click', calculateHeightExpand);
-    readCollapseButton.addEventListener('click', calculateHeightCollapse);
 })();
